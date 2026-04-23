@@ -1,0 +1,8 @@
+@import "tailwindcss/preflight";
+@tailwind utilities;
+
+/* Custom global styles */
+/* Smooth gradient background */
+body {
+  @apply min-h-screen bg-gradient-to-br from-blue-500 via-purple-500 to-indigo-600;
+}
