@@ -1,7 +1,11 @@
 import axios from "axios";
 
+const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_BASE_URL ||
+  "https://blog-application-qw2b.onrender.com/api";
+
 const API = axios.create({
-  baseURL: "http://localhost:5000/api"
+  baseURL: API_BASE_URL
 });
 
 API.interceptors.request.use((config) => {
