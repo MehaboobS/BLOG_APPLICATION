@@ -4,18 +4,28 @@ const errorHandler = require("./middlewares/errorHandler");
 
 const app = express();
 
+const normalizeOrigin = (value) => {
+  if (!value || typeof value !== "string") return null;
+  return value.trim().replace(/\/$/, "");
+};
+
 const allowedOrigins = [
   "http://localhost:3000",
   "http://127.0.0.1:3000",
+  "https://blog-application-woad-five.vercel.app",
   process.env.FRONTEND_URL
-].filter(Boolean);
+]
+  .map(normalizeOrigin)
+  .filter(Boolean);
+
+const allowedOriginSet = new Set(allowedOrigins);
 
 const corsOptions = {
   origin: (origin, callback) => {
     // Allow non-browser clients and same-origin requests with no Origin header.
     if (!origin) return callback(null, true);
 
-    if (allowedOrigins.includes(origin)) {
+    if (allowedOriginSet.has(normalizeOrigin(origin))) {
       return callback(null, true);
     }
 
