@@ -2,7 +2,7 @@ import axios from "axios";
 
 const API_BASE_URL =
  
-  "https://blog-application-10jw.onrender.com";
+  "https://blog-application-10jw.onrender.com/api";
 
 const API = axios.create({
   baseURL: API_BASE_URL
