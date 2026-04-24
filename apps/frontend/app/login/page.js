@@ -3,10 +3,12 @@ import { useState } from "react";
 import API from "../../services/api";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../../context/AuthContext";
+import PopupModal from "../../components/PopupModal";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [popup, setPopup] = useState(null);
   const { login } = useAuth();
   const router = useRouter();
 
@@ -16,9 +18,24 @@ export default function Login() {
     try {
       const res = await API.post("/auth/login", { email, password });
       login(res.data);
-      router.push("/dashboard");
+      setPopup({
+        type: "success",
+        title: "Login successful",
+        message: "Welcome back. Your dashboard is ready.",
+        confirmLabel: "Continue",
+        onClose: () => {
+          setPopup(null);
+          router.push("/dashboard");
+        }
+      });
     } catch {
-      alert("Invalid email or password");
+      setPopup({
+        type: "error",
+        title: "Login failed",
+        message: "Invalid email or password. Please try again.",
+        confirmLabel: "Try Again",
+        onClose: () => setPopup(null)
+      });
     }
   };
 
@@ -72,6 +89,15 @@ export default function Login() {
           </span>
         </p>
       </form>
+
+      <PopupModal
+        open={Boolean(popup)}
+        type={popup?.type || "info"}
+        title={popup?.title}
+        message={popup?.message}
+        confirmLabel={popup?.confirmLabel || "Okay"}
+        onClose={popup?.onClose}
+      />
     </div>
   );
 }

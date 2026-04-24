@@ -2,6 +2,7 @@
 import { useState } from "react";
 import API from "../../services/api";
 import { useRouter } from "next/navigation";
+import PopupModal from "../../components/PopupModal";
 
 export default function Register() {
   const [form, setForm] = useState({
@@ -9,6 +10,7 @@ export default function Register() {
     email: "",
     password: ""
   });
+  const [popup, setPopup] = useState(null);
 
   const router = useRouter();
 
@@ -17,10 +19,24 @@ export default function Register() {
 
     try {
       await API.post("/auth/register", form);
-      alert("Registration successful!");
-      router.push("/login");
+      setPopup({
+        type: "success",
+        title: "Registration successful",
+        message: "Your account has been created. You can now sign in.",
+        confirmLabel: "Go to Login",
+        onClose: () => {
+          setPopup(null);
+          router.push("/login");
+        }
+      });
     } catch {
-      alert("Registration failed");
+      setPopup({
+        type: "error",
+        title: "Registration failed",
+        message: "We could not create your account. Please try again.",
+        confirmLabel: "Close",
+        onClose: () => setPopup(null)
+      });
     }
   };
 
@@ -84,6 +100,15 @@ export default function Register() {
           </span>
         </p>
       </form>
+
+      <PopupModal
+        open={Boolean(popup)}
+        type={popup?.type || "info"}
+        title={popup?.title}
+        message={popup?.message}
+        confirmLabel={popup?.confirmLabel || "Okay"}
+        onClose={popup?.onClose}
+      />
     </div>
   );
 }

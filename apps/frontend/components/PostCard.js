@@ -30,7 +30,7 @@ export default function PostCard({ post, onDelete, onEdit, onView, isOwner }) {
           </button>
 
           <button
-            onClick={() => onDelete(post._id)}
+            onClick={() => onDelete(post)}
             className="rounded-lg bg-rose-500 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-rose-400"
           >
             Delete

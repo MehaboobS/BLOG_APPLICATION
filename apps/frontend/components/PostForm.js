@@ -16,9 +16,9 @@ export default function PostForm({ onSubmit, initialData, onCancelEdit }) {
     setContent("");
   }, [initialData]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    onSubmit({ title, content });
+    await onSubmit({ title, content });
 
     if (!initialData) {
       setTitle("");

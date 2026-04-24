@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import API from "../../services/api";
 import PostCard from "../../components/PostCard";
 import PostForm from "../../components/PostForm";
+import PopupModal from "../../components/PopupModal";
 import { useAuth } from "../../context/AuthContext";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -12,6 +13,7 @@ export default function Dashboard() {
   const [editing, setEditing] = useState(null);
   const [selectedPost, setSelectedPost] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [popup, setPopup] = useState(null);
   const { user } = useAuth();
   const router = useRouter();
 
@@ -37,20 +39,53 @@ export default function Dashboard() {
   const createPost = async (data) => {
     await API.post("/posts", data);
     fetchPosts();
+    setPopup({
+      type: "success",
+      title: "Post created",
+      message: "Your new post is now live in the dashboard.",
+      confirmLabel: "Great",
+      onClose: () => setPopup(null)
+    });
   };
 
   const updatePost = async (data) => {
     await API.put(`/posts/${editing._id}`, data);
     setEditing(null);
     fetchPosts();
+    setPopup({
+      type: "success",
+      title: "Post updated",
+      message: "Your changes were saved successfully.",
+      confirmLabel: "Done",
+      onClose: () => setPopup(null)
+    });
   };
 
-  const deletePost = async (id) => {
-    await API.delete(`/posts/${id}`);
-    if (editing?._id === id) {
-      setEditing(null);
-    }
-    fetchPosts();
+  const requestDeletePost = (post) => {
+    setPopup({
+      type: "confirm",
+      title: "Delete post?",
+      message: `This will permanently delete \"${post.title}\". This action cannot be undone.`,
+      confirmLabel: "Delete",
+      cancelLabel: "Keep It",
+      onClose: () => setPopup(null),
+      onConfirm: async () => {
+        const id = post._id;
+        setPopup(null);
+        await API.delete(`/posts/${id}`);
+        if (editing?._id === id) {
+          setEditing(null);
+        }
+        fetchPosts();
+        setPopup({
+          type: "success",
+          title: "Post deleted",
+          message: "The post was removed successfully.",
+          confirmLabel: "Okay",
+          onClose: () => setPopup(null)
+        });
+      }
+    });
   };
 
   const isPostOwner = (post) => {
@@ -79,7 +114,7 @@ export default function Dashboard() {
           <PostCard
             key={post._id}
             post={post}
-            onDelete={deletePost}
+            onDelete={requestDeletePost}
             onEdit={setEditing}
             onView={setSelectedPost}
             isOwner={isPostOwner(post)}
@@ -166,6 +201,17 @@ export default function Dashboard() {
           </div>
         </div>
       )}
+
+      <PopupModal
+        open={Boolean(popup)}
+        type={popup?.type || "info"}
+        title={popup?.title}
+        message={popup?.message}
+        confirmLabel={popup?.confirmLabel || "Okay"}
+        cancelLabel={popup?.cancelLabel || "Cancel"}
+        onClose={popup?.onClose}
+        onConfirm={popup?.onConfirm}
+      />
     </main>
   );
 }
